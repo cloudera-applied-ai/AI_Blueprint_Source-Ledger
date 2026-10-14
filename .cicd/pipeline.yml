@@ -1,0 +1,135 @@
+# Source Ledger — build → test → deploy. One Git-driven pipeline.
+#
+# GitLab does not look here by default. Point it at this file once:
+#   Settings → CI/CD → General pipelines → CI/CD configuration file
+#     .cicd/pipeline.yml
+#
+# Keeping it out of the repo root is deliberate — the root stays readable, and
+# every phase of the accelerator lives in a named directory.
+
+stages:
+  - build
+  - test
+  - deploy
+
+default:
+  image: python:3.11-slim
+  interruptible: true
+  # Only retry infrastructure failures. Retrying a real test failure is how a
+  # flaky suite becomes a trusted one for the wrong reason.
+  retry:
+    max: 2
+    when:
+      - runner_system_failure
+      - stuck_or_timeout_failure
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  # Never let CI write to a checked-in database.
+  SOURCE_LEDGER_DB: "$CI_PROJECT_DIR/.tmp/ci.db"
+
+cache:
+  key:
+    files:
+      - app/requirements.txt
+      - tests/requirements.txt
+  paths:
+    - .cache/pip
+
+# ---------------------------------------------------------------------------
+# build — dependencies resolve and every module imports
+# ---------------------------------------------------------------------------
+
+build:
+  stage: build
+  script:
+    - pip install --upgrade pip
+    - pip install -r app/requirements.txt -r tests/requirements.txt
+    # Import each layer the way the runtime does. Catches a broken sys.path
+    # before the test stage buries it in a fixture error.
+    - python -c "import sys; sys.path[:0] = ['retrieval', 'data', 'pipelines/jobs']; import source_ledger, db, record, url_enrichment; print('layers import OK')"
+    - python -c "import app.server; from app import hosting; print('serve layer imports OK')"
+  artifacts:
+    paths:
+      - .cache/pip
+    expire_in: 1 day
+
+# ---------------------------------------------------------------------------
+# test — the Harden gate
+# ---------------------------------------------------------------------------
+
+test:
+  stage: test
+  needs: [build]
+  script:
+    - pip install -r app/requirements.txt -r tests/requirements.txt
+    # No --live. CI must never fail because a search provider is rate-limiting;
+    # the live tier is run by hand before a release. See tests/README.md.
+    - pytest tests -q --junitxml=report.xml
+  artifacts:
+    when: always
+    reports:
+      junit: report.xml
+    expire_in: 1 week
+
+# Validates the artifacts that only ever run on a cluster. The Spark jobs
+# themselves can no longer be exercised here — they write on invocation and need
+# pyspark plus a live catalog — so what is checked is everything around them that
+# does not. `read_sqlite` and the column lists both jobs depend on are covered by
+# pytest in the `test` stage -- including the CDE job definition's args against
+# the job's own parser.
+verify-jobs:
+  stage: test
+  # No `needs: [build]`: nothing here installs anything, so pulling build's pip
+  # cache artifact would download a wheel set this job never opens.
+  needs: []
+  script:
+    - bash -n infra/cdp/provision.sh && echo "provision.sh syntax OK"
+    - bash -n .cicd/deploy.sh && echo "deploy.sh syntax OK"
+    - bash -n scripts/new-accelerator.sh && echo "new-accelerator.sh syntax OK"
+    - python -c "import json; json.load(open('governance/sdx/ranger-policies.json')); print('ranger policies parse OK')"
+
+# ---------------------------------------------------------------------------
+# deploy — manual, main only
+# ---------------------------------------------------------------------------
+
+.deploy_base:
+  stage: deploy
+  needs: [test, verify-jobs]
+  rules:
+    # Manual because deploying is someone's decision, not a side effect of
+    # merging. `when: manual` on `main` only.
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: manual
+      allow_failure: false
+    - when: never
+  before_script:
+    - pip install --upgrade pip && pip install -r app/requirements.txt
+    # CDP_ACCESS_KEY_ID / CDP_PRIVATE_KEY are masked GitLab CI variables.
+    # Nothing in this repo contains a credential.
+    - mkdir -p ~/.cdp
+    - printf '[default]\ncdp_access_key_id=%s\ncdp_private_key=%s\n' "$CDP_ACCESS_KEY_ID" "$CDP_PRIVATE_KEY" > ~/.cdp/credentials
+
+deploy:govern:
+  extends: .deploy_base
+  script:
+    - .cicd/deploy.sh govern --execute
+  environment:
+    name: cdp/$CDP_ENV
+
+deploy:jobs:
+  extends: .deploy_base
+  needs: ["deploy:govern"]
+  script:
+    - .cicd/deploy.sh jobs --execute
+  environment:
+    name: cdp/$CDP_ENV
+
+deploy:app:
+  extends: .deploy_base
+  needs: ["deploy:jobs"]
+  script:
+    - .cicd/deploy.sh app --execute
+  environment:
+    name: cdp/$CDP_ENV
+    url: https://$CDP_ENV-ai.cloudera.site/source_ledger

@@ -1,0 +1,88 @@
+# Cloudera Blueprint catalog metadata
+# Consumed by the master blueprint website and the internal catalog.
+#
+# Every field below is either filled or deliberately empty. An empty string means
+# "does not exist yet" and is the honest answer; a plausible-looking placeholder is
+# worse than a blank, because a reviewer reads it as filled in and follows it.
+
+# --- Identity ---
+name: "Source Ledger — Text to a Governed Table of URLs"
+slug: "source-ledger"                        # URL-safe repo / catalog identifier
+description: "Turn a natural-language question into a persisted, governed table of source URLs."
+reprise_link: ""                             # Public reprise link. Empty: no walkthrough has
+                                             # been recorded. docs/EXAMPLE.md is the written
+                                             # equivalent -- one search traced across all five
+                                             # layers in ~20 minutes. See "Demo" in README.md.
+
+# --- Classification (website filters) ---
+catalog_classification:
+  - Developer Example                   # Options: Enterprise Blueprint | Research | Launchable (AMP) | Developer Example
+launchable: False                           # No launch descriptor ships, so the repository forks and
+                                             # runs rather than launching in one click. The layers that
+                                             # run today are started by hand -- `make dev` for the
+                                             # dashboard, quickstart.ipynb in a Cloudera AI session -- and
+                                             # the CDE/CDW/SDX tier is deployed through .cicd/deploy.sh.
+lifecycle_status: Active                     # Maintained, not retired. The retrieval and Serve
+                                             # layers are complete and run today; storage ends at
+                                             # SQLite and the CDP/Iceberg tier is written but not
+                                             # connected. Three Harden items stand before this is
+                                             # served anywhere but 127.0.0.1 -- see "Status" in
+                                             # README.md and the phase table in docs/GATES.md.
+
+# --- Industry & alignment ---
+industry: "General"                          # e.g., General | Telecom | Financial Services | Healthcare & Life Sciences | Retail | Media | Physical AI & Robotics
+industry_alignment: "Horizontal"             # The capability is domain-independent; `make new
+                                             # VERTICAL=... USECASE=...` re-points it at any vertical
+target_vertical: ""                          # Empty by design: horizontal accelerators claim none
+
+# --- Tags (website search & browse) ---
+# Capability and audience, not implementation. Someone searching the catalog knows
+# what they need to do, not which web framework does it.
+tags:
+  - metasearch
+  - web-search
+  - retrieval
+  - provenance
+  - reproducible-research
+  - literature-review
+  - iceberg
+  - data-governance
+  - accelerator-template
+
+# --- Relationships ---
+product_mapping:                             # TARGET integration, not exercised. Only the two AI
+                                             # entries run today, and only locally; the CDE / CDW /
+                                             # SDX paths are unexercised. See "Status" and the
+                                             # layer/state table under "Architecture / Software
+                                             # Components" in README.md.
+  - Cloudera AI Application                  # Serve — app/, FastAPI + Jinja2
+  - Cloudera AI Workbench                    # AI — retrieval/source_ledger.py, text_to_urls()
+  - Cloudera Data Engineering                # Ingest + Process — data/ingest/, pipelines/
+  - Cloudera Data Warehouse                  # Lakehouse — Iceberg on CDW / Data Lake
+  - SDX                                      # Governance — Ranger policies, Atlas lineage
+
+model_dependencies: []                       # None, and stated as an empty list rather than an
+                                             # omitted field so the catalog records the answer.
+                                             # Source Ledger has no weights, no embeddings, and no
+                                             # inference of its own -- it is a metasearch client;
+                                             # see governance/model_cards/source-ledger-retrieval.md.
+                                             # It does call third-party public endpoints (ddgs web
+                                             # engines, Wikipedia, OpenAlex, arXiv), which is a
+                                             # deployability constraint rather than a model
+                                             # dependency: governance/DATA_CLASSIFICATION.md.
+
+# --- Provenance ---
+publisher: "cloudera"                        # cloudera | partner-name
+source: "Internal"                           # Internal | Partner | NVIDIA Adaptation | Customer
+
+# --- Repository & assets ---
+public_github_link: "https://github.com/cloudera-applied-ai/AI_Blueprint_Source-Ledger"
+#private_github_link: ""                     # Not applicable -- the repo above is public
+
+# --- Ownership ---
+maintainer_name: "Minseok Jung"
+
+# --- Dates ---
+date_created: "2026-06-22"                   # First commit
+date_updated: "2026-10-14"                   # Bump on the commit that ships a change worth cataloguing
+published_date: ""                           # Set when it first appears in the catalog

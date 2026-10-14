@@ -1,0 +1,65 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.tmp/
+report.xml
+
+# Node / TypeScript (if a JS front-end is added to app/)
+node_modules/
+*.tsbuildinfo
+
+# SQLite — the dev store is generated, never committed
+*.db
+*.db-journal
+*.db-wal
+
+# Local snapshots from `make backup`. They hold the same real query text as the
+# dev store, so they are no more committable than it is.
+backups/
+
+# Exports written by section 6 of the notebook and by `cli.py export`. One row per
+# URL with the query text denormalized onto every one of them -- the same record
+# the dev store is ignored for, in the format that travels furthest.
+data/exports/
+*.csv
+
+# Terraform — state can carry resource metadata and must not be committed
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+*.tfvars
+crash.log
+
+# Cloudera / CDP
+.cdp/
+cde-profile.yaml
+
+# Spark / Iceberg local scratch
+spark-warehouse/
+metastore_db/
+derby.log
+
+# Notebook checkpoints
+.ipynb_checkpoints/
+
+# Env / secrets — nothing in this repo may contain a credential
+.env
+.env.*
+*.pem
+*.key
+
+# OS / editor / local tooling
+.DS_Store
+Thumbs.db
+# .vscode/ stays ignored, with one exception: settings.json records a fact about
+# the file format rather than a personal preference -- app/templates/index.html is
+# a Jinja2 template, so VS Code flags its <style> block as broken CSS for everyone
+# who opens the repo, not just its author.
+.vscode/*
+!.vscode/settings.json
+.idea/

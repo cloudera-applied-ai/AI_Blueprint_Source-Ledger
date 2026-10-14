@@ -1,0 +1,346 @@
+================================================================================
+================================================================================
+
+         Third-Party Software for Source Ledger: From metasearch to a governed URL table 
+
+--------------------------------------------------------------------------------
+
+The product or component covered by this notice file is subject to copyright owned by Cloudera, the Apache Software Foundation or other third parties, as applicable, and the copyright owner reserves all rights.
+
+The following notices and licenses apply to various third party software packages, including open source software packages, which are distributed with the product identified in this file or accompanying this file.  Such product (i) may not include all of the referenced third party software packages or include only a portion of a given package and (ii) may also include other components, which may contain additional third party software packages as identified in their separate respective notice files.
+
+To the extent required by the license associated with a third party software package, Cloudera, Inc. will provide a copy of the third party software package’s source code upon request and at a reasonable fee.  All requests for source code must be made in writing and mailed to "Cloudera, Inc., ATTN: Legal Dept.,5470 Great America Pkwy, Santa Clara, CA 95054" and include the following information: (i) the name and version number of the covered binary, (ii) name and the version number of the Cloudera product containing the covered binary, (iii) your name, (iv) your company or organization name (if applicable), (v) the license under which you are requesting the source code to be provided, and (vi) your return mailing and email address (if available).
+
+The following 3rd-party software packages may be used by or distributed with Cloudera_Source_Ledger (RELENG-37856). Any information relevant to third-party vendors listed below are collected using common, reasonable means.
+
+Date generated: 2026-10-7
+
+Revision ID: 6575b99abce1c6a101fcefabf9facfce361f81a5
+
+================================================================================
+================================================================================
+
+
+
+================================================================================
+
+                                  Dependencies
+
+================================================================================
+
+- ddgs (9.0.0) [MIT]
+- fastapi (0.110.0) [MIT, Apache-2.0]
+- ipykernel (6.29.0) [BSD-3-Clause]
+- Jinja2 (3.1.0) [BSD-3-Clause]
+- jupyterlab (4.0.0) [MIT, BSD-3-Clause, Apache-2.0, OFL-1.1, CC-BY-4.0]
+- python-multipart (0.0.12) [Apache-2.0]
+- uvicorn (0.27.0) [BSD-3-Clause]
+
+--------------------------------------------------------------------------------
+Package Title: ddgs (9.0.0)
+
+Package Locator: pip+ddgs$9.0.0
+
+Package Depth: Direct
+--------------------------------------------------------------------------------
+
+Dux Distributed Global Search. A metasearch library that aggregates results from diverse web search services.
+
+* Other Licenses *
+MIT
+--------------------------------------------------------------------------------
+File matches:
+- LICENSE.md
+  - Copyright (c) 2022 deedy5
+--------------------------------------------------------------------------------
+
+* Copyrights *
+MIT
+- Copyright (c) 2022 deedy5
+
+* Package Info *
+
+Authors: deedy5
+Package Manager: Pip
+Project URL: https://pypi.org/project/ddgs/
+Package Download URL: https://files.pythonhosted.org/packages/1f/08/0e84549a1d7d5950573f73d7bc5d36f2a00f92ad8e644b59066afd430a6f/ddgs-9.0.0.tar.gz
+Dependency Path: ddgs
+
+--------------------------------------------------------------------------------
+Package Title: fastapi (0.110.0)
+
+Package Locator: pip+fastapi$0.110.0
+
+Package Depth: Direct
+--------------------------------------------------------------------------------
+
+FastAPI framework, high performance, easy to learn, fast to code, ready for production
+
+* Declared Licenses *
+MIT
+--------------------------------------------------------------------------------
+File matches:
+- docs/en/layouts/custom.yml
+  - Copyright (c) 2016-2023 Martin Donath <martin.donath@squidfunk.com>
+- LICENSE
+  - Copyright (c) 2018 Sebastián Ramírez
+--------------------------------------------------------------------------------
+
+* Other Licenses *
+Apache-2.0
+--------------------------------------------------------------------------------
+File matches:
+- fastapi/applications.py
+--------------------------------------------------------------------------------
+
+* Copyrights *
+MIT
+- Copyright (c) 2018 Sebastián Ramírez
+- Copyright (c) 2016-2023 Martin Donath <martin.donath@squidfunk.com>
+
+* Package Info *
+
+Authors: Sebastián Ramírez <tiangolo@gmail.com>
+Package Manager: Pip
+Project URL: https://pypi.org/project/fastapi/
+Package Download URL: https://files.pythonhosted.org/packages/61/53/326977db62bf34bbdfc64acb9414e1881af7ea14e8a062fd1c11a8697616/fastapi-0.110.0.tar.gz
+Dependency Path: fastapi
+
+--------------------------------------------------------------------------------
+Package Title: ipykernel (6.29.0)
+
+Package Locator: pip+ipykernel$6.29.0
+
+Package Depth: Direct
+--------------------------------------------------------------------------------
+
+IPython Kernel for Jupyter
+
+* Declared Licenses *
+BSD-3-Clause
+--------------------------------------------------------------------------------
+File matches:
+- LICENSE
+  - Copyright (c) 2015 IPython Development Team
+- PKG-INFO
+  - Copyright (c)  IPython Development Team.
+  - Copyright (c)  Policy
+  - Copyright (c)  model. Each contributor maintains copyright
+  - Copyright (c)  of any single person or
+  - Copyright (c)  of the entire IPython
+  - Copyright (c)  on, they should indicate
+  - Copyright (c) 2015 IPython Development Team
+--------------------------------------------------------------------------------
+
+* Copyrights *
+BSD-3-Clause
+- Copyright (c) 2015 IPython Development Team
+- Copyright (c)  Policy
+- Copyright (c)  model. Each contributor maintains copyright
+- Copyright (c)  of any single person or
+- Copyright (c)  of the entire IPython
+- Copyright (c)  on, they should indicate
+- Copyright (c)  IPython Development Team.
+
+* Package Info *
+
+Authors: IPython Development Team <ipython-dev@scipy.org>
+Package Manager: Pip
+Project URL: https://pypi.org/project/ipykernel/
+Package Download URL: https://files.pythonhosted.org/packages/03/55/644139aaa3237b0c6c8e3296462b2214cf3423d41c48e812db4555d42573/ipykernel-6.29.0.tar.gz
+Dependency Path: ipykernel
+
+--------------------------------------------------------------------------------
+Package Title: Jinja2 (3.1.0)
+
+Package Locator: pip+jinja2$3.1.0
+
+Package Depth: Direct
+--------------------------------------------------------------------------------
+
+A very fast and expressive template engine.
+
+* Declared Licenses *
+BSD-3-Clause
+--------------------------------------------------------------------------------
+File matches:
+- LICENSE.rst
+  - Copyright (c) 2007 Pallets
+--------------------------------------------------------------------------------
+
+* Copyrights *
+BSD-3-Clause
+- Copyright (c) 2007 Pallets
+
+* Package Info *
+
+Package Manager: Pip
+Project URL: https://pypi.org/project/Jinja2/
+Package Download URL: https://files.pythonhosted.org/packages/1f/93/99a76d0fa1a8fc14442a6421abee323f8d15964979336eabd2a1834e9118/Jinja2-3.1.0.tar.gz
+Dependency Path: jinja2
+
+--------------------------------------------------------------------------------
+Package Title: jupyterlab (4.0.0)
+
+Package Locator: pip+jupyterlab$4.0.0
+
+Package Depth: Direct
+--------------------------------------------------------------------------------
+
+JupyterLab computational environment
+
+* Declared Licenses *
+MIT, BSD-3-Clause
+
+* MIT *
+--------------------------------------------------------------------------------
+File matches:
+- jupyterlab/semver.py
+  - Copyright (c)  Jupyter Development Team.
+  - Copyright (c) 2016 podhmo
+- jupyterlab/static/141.94bae14bb1a741a94bd5.js.LICENSE.txt
+  - Copyright (c)  Facebook, Inc. and its affiliates.
+- jupyterlab/static/3935.905285b8e22c337968ed.js.LICENSE.txt
+  - Copyright (c)  Facebook, Inc. and its affiliates.
+- jupyterlab/static/7294.badf85a3180703d63f62.js.LICENSE.txt
+  - Copyright (c)  Facebook, Inc. and its affiliates.
+- jupyterlab/static/8768.e15a51e27895bbfa70ea.js.LICENSE.txt
+  - Copyright (c)  Facebook, Inc. and its affiliates.
+- jupyterlab/static/9674eb1bd55047179038.svg
+- jupyterlab/static/a3b9817780214caf01e8.svg
+- jupyterlab/static/be0a084962d8066884f7.svg
+--------------------------------------------------------------------------------
+
+* BSD-3-Clause *
+--------------------------------------------------------------------------------
+File matches:
+- galata/extension/package.json
+- galata/package.json
+- jupyterlab/galata/@jupyterlab/galata-extension/package.json
+- jupyterlab/staging/package.json
+- jupyterlab/static/package.json
+- LICENSE
+  - Copyright (c) 2015-2022 Project Jupyter Contributors
+- PKG-INFO
+  - Copyright (c)  model that enables all contributors to maintain the
+  - Copyright (c)  on their contributions. All code is licensed under the terms of the revised [BSD license](https://github.com/jupyterlab/jupyterlab/blob/master/LICENSE).
+  - Copyright (c) 2015-2022 Project Jupyter Contributors
+--------------------------------------------------------------------------------
+
+* Other Licenses *
+Apache-2.0, OFL-1.1, CC-BY-4.0
+
+* Apache-2.0 *
+--------------------------------------------------------------------------------
+File matches:
+- jupyterlab/static/7451.c0257dbfdd320e2c21f5.js.LICENSE.txt
+  - Copyright (c) 2019 Ron Buckton
+- jupyterlab/static/9826.406d2a71dc45995bc549.js.LICENSE.txt
+  - Copyright (c) 2015-2021 Martin Hensel
+--------------------------------------------------------------------------------
+
+* OFL-1.1 *
+--------------------------------------------------------------------------------
+File matches:
+- jupyterlab/static/9674eb1bd55047179038.svg
+- jupyterlab/static/a3b9817780214caf01e8.svg
+- jupyterlab/static/be0a084962d8066884f7.svg
+--------------------------------------------------------------------------------
+
+* CC-BY-4.0 *
+--------------------------------------------------------------------------------
+File matches:
+- jupyterlab/static/9674eb1bd55047179038.svg
+- jupyterlab/static/a3b9817780214caf01e8.svg
+- jupyterlab/static/be0a084962d8066884f7.svg
+--------------------------------------------------------------------------------
+
+* Copyrights *
+MIT
+- Copyright (c)  Jupyter Development Team.
+- Copyright (c)  Facebook, Inc. and its affiliates.
+- Copyright (c) 2016 podhmo
+BSD-3-Clause
+- Copyright (c) 2015-2022 Project Jupyter Contributors
+- Copyright (c)  model that enables all contributors to maintain the
+- Copyright (c)  on their contributions. All code is licensed under the terms of the revised [BSD license](https://github.com/jupyterlab/jupyterlab/blob/master/LICENSE).
+Apache-2.0
+- Copyright (c) 2019 Ron Buckton
+- Copyright (c) 2015-2021 Martin Hensel
+
+* Package Info *
+
+Authors: Jupyter Development Team <jupyter@googlegroups.com>
+Package Manager: Pip
+Project URL: https://pypi.org/project/jupyterlab/
+Package Download URL: https://files.pythonhosted.org/packages/e6/01/ba866a76f471a649b8db31c023a1ac9111a4dfab9b2f877cfd83fbdf6cdf/jupyterlab-4.0.0.tar.gz
+Dependency Path: jupyterlab
+
+--------------------------------------------------------------------------------
+Package Title: python-multipart (0.0.12)
+
+Package Locator: pip+python-multipart$0.0.12
+
+Package Depth: Direct
+--------------------------------------------------------------------------------
+
+A streaming multipart parser for Python
+
+* Declared Licenses *
+Apache-2.0
+--------------------------------------------------------------------------------
+File matches:
+- LICENSE.txt
+  - Copyright (c) 2012 Andrew Dunham
+--------------------------------------------------------------------------------
+
+* Copyrights *
+Apache-2.0
+- Copyright (c) 2012 Andrew Dunham
+
+* Package Info *
+
+Authors: Andrew Dunham <andrew@du.nham.ca>
+Package Manager: Pip
+Project URL: https://pypi.org/project/python-multipart/
+Package Download URL: https://files.pythonhosted.org/packages/16/6e/7ecfe1366b9270f7f475c76fcfa28812493a6a1abd489b2433851a444f4f/python_multipart-0.0.12.tar.gz
+Dependency Path: python-multipart
+
+--------------------------------------------------------------------------------
+Package Title: uvicorn (0.27.0)
+
+Package Locator: pip+uvicorn$0.27.0
+
+Package Depth: Direct
+--------------------------------------------------------------------------------
+
+The lightning-fast ASGI server.
+
+* Declared Licenses *
+BSD-3-Clause
+--------------------------------------------------------------------------------
+File matches:
+- LICENSE.md
+  - Copyright (c) 2017 present, [Encode OSS Ltd](https://www.encode.io/).
+- uvicorn/_types.py
+  - Copyright (c)  Django Software Foundation and individual contributors.
+--------------------------------------------------------------------------------
+
+* Copyrights *
+BSD-3-Clause
+- Copyright (c) 2017 present, [Encode OSS Ltd](https://www.encode.io/).
+- Copyright (c)  Django Software Foundation and individual contributors.
+
+* Package Info *
+
+Authors: Tom Christie <tom@tomchristie.com>
+Package Manager: Pip
+Project URL: https://pypi.org/project/uvicorn/
+Package Download URL: https://files.pythonhosted.org/packages/52/75/9cf554ed256d8bcdf3a9bb831b599c4e48e4e5993931fb512f75e529ece4/uvicorn-0.27.0.tar.gz
+Dependency Path: uvicorn
+
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+Report Generated by FOSSA on 2026-10-7

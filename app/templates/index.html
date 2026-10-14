@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Source Ledger — Text to URLs</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%3E%3Crect%20width='24'%20height='24'%20rx='6'%20fill='%23f5821f'/%3E%3Cg%20stroke='%231d1206'%20stroke-width='2'%20fill='none'%20stroke-linecap='round'%3E%3Ccircle%20cx='10.5'%20cy='10'%20r='5.5'/%3E%3Cpath%20d='M14.6%2014.1%2019%2018.5'/%3E%3Cpath%20d='M7.5%208.5h6M8.5%2011.5h4'/%3E%3C/g%3E%3C/svg%3E" />
+    <style>
+      :root {
+        /* App shell — bright and clean, its own identity */
+        --bg: #f3f4f7;
+        --surface: #ffffff;
+        --surface-2: #f7f8fa;
+        --line: #dfe3eb;
+        --line-soft: #e9ecf1;
+        --text: #1d2433;
+        --muted: #5d6678;
+        --accent: #f5821f;
+        --accent-strong: #ff9838;
+        --accent-deep: #c1650e;
+        --accent-ink: #1d1206;
+        --focus: #e8940f;
+        --ok: #178a4c;
+        --err: #d84a2a;
+
+        /* Saved searches — dark panel with green letters */
+        --term-bg: #0d120c;
+        --term-bg-2: #121a10;
+        --term-line: #223318;
+        --term-green: #5ee98a;
+        --term-green-dim: #559d6c;
+        --term-amber: #e8c766;
+      }
+      * { box-sizing: border-box; }
+      body {
+        font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+        background:
+          radial-gradient(900px 420px at 15% -10%, rgba(245, 130, 31, 0.12), transparent 60%),
+          radial-gradient(700px 380px at 95% 0%, rgba(23, 138, 76, 0.07), transparent 55%),
+          var(--bg);
+        color: var(--text);
+        margin: 0;
+        padding: 2.5rem 1.25rem 4rem;
+        display: flex;
+        justify-content: center;
+        line-height: 1.5;
+      }
+      /* Ten columns of search metadata need more room than a prose column.
+         min-width:0 keeps this flex item from flooring at the table's min-content
+         width, so .table-scroll owns any table overflow. Note the page still scrolls
+         sideways below ~600px for a separate, pre-existing reason — there are no
+         media queries here yet and the layout is desktop-first. */
+      main { width: 100%; max-width: 1040px; min-width: 0; }
+
+      /* ---------- Header ---------- */
+      .topbar {
+        display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.25rem;
+        margin-bottom: 1.75rem;
+      }
+      .brand { display: flex; align-items: center; gap: 0.85rem; }
+      .mark {
+        width: 46px; height: 46px; flex: none;
+        display: grid; place-items: center;
+        border-radius: 12px;
+        background: linear-gradient(140deg, var(--accent-strong), var(--accent) 55%, #c96410);
+        color: var(--accent-ink);
+        box-shadow: 0 6px 18px rgba(245, 130, 31, 0.28);
+      }
+      .mark svg { width: 27px; height: 27px; display: block; }
+      h1 {
+        margin: 0; font-size: 1.45rem; font-weight: 700; letter-spacing: 0.3px;
+      }
+      .tagline { margin: 0.1rem 0 0; color: var(--muted); font-size: 0.88rem; }
+      .stats { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-left: auto; }
+      .chip {
+        font-size: 0.78rem; color: var(--muted);
+        padding: 0.3rem 0.75rem;
+        border: 1px solid var(--line); border-radius: 999px;
+        background: var(--surface);
+        white-space: nowrap;
+      }
+      .chip b { color: var(--text); font-weight: 600; }
+
+      /* ---------- Search card ---------- */
+      form.search {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 1.4rem 1.4rem 1.25rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        box-shadow: 0 14px 38px rgba(23, 32, 56, 0.09);
+      }
+      .field-label {
+        margin: 0 0 -0.35rem;
+        font-size: 0.75rem; font-weight: 600; letter-spacing: 1.2px;
+        text-transform: uppercase; color: var(--muted);
+      }
+      textarea {
+        font: inherit;
+        font-size: 1rem;
+        width: 100%;
+        min-height: 88px;
+        resize: vertical;
+        padding: 0.85rem 1rem;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: var(--bg);
+        color: var(--text);
+        transition: border-color 0.15s, box-shadow 0.15s;
+      }
+      textarea::placeholder { color: #9aa3b2; }
+      textarea:focus {
+        outline: none;
+        border-color: var(--focus);
+        box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.18);
+      }
+
+      /* Options as one fill-in-the-blank sentence */
+      .sentence {
+        display: flex; flex-wrap: wrap; align-items: center; gap: 0.55rem;
+        margin: 0; color: var(--muted); font-size: 0.94rem;
+      }
+      .sentence select,
+      .sentence input[type="number"] {
+        font: inherit; font-weight: 600; color: var(--text);
+        background: transparent; border: none; border-radius: 0;
+        border-bottom: 2px solid var(--line);
+        padding: 0.15rem 0.2rem; cursor: pointer;
+        transition: border-color 0.15s;
+      }
+      .sentence select:hover,
+      .sentence input[type="number"]:hover { border-color: var(--accent); }
+      .sentence select option { background: var(--surface-2); color: var(--text); }
+      .sentence input[type="number"] { width: 3.6rem; cursor: text; }
+      .sentence select:focus,
+      .sentence input[type="number"]:focus { outline: none; border-color: var(--focus); }
+
+      /* Each control keeps its own connective word, so hiding one takes the
+         preposition with it and the sentence still reads. */
+      .opt { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0.55rem; }
+
+      /* Which controls a provider hides, generated from the support matrix in
+         retrieval/providers.py via app/server.py:_providers(). Written here rather than
+         hand-maintained because a rule that disagrees with the server would show a
+         knob that silently does nothing — the exact failure the matrix prevents.
+
+         Hiding is cosmetic only: a hidden control still posts its value, so the
+         server remains the enforcement point. Where :has() is unsupported every
+         control simply renders, which is safe for the same reason. */
+      {% for p in providers %}{% for opt in p.unsupported %}
+      .sentence:has(#pv-{{ p.id }}:checked) .opt-{{ opt }} { display: none; }
+      {% endfor %}{% endfor %}
+
+      /* Engine and provider toggles: pill chips that fill when active */
+      .engines { display: inline-flex; flex-wrap: wrap; gap: 0.45rem; }
+      .engines input { position: absolute; opacity: 0; pointer-events: none; }
+      .engines label {
+        font-size: 0.84rem; font-weight: 500; color: var(--muted);
+        padding: 0.32rem 0.85rem;
+        border: 1px solid var(--line); border-radius: 999px;
+        background: var(--bg);
+        cursor: pointer; user-select: none; white-space: nowrap;
+        transition: border-color 0.15s, color 0.15s, background 0.15s;
+      }
+      .engines label:hover { border-color: var(--accent); color: var(--text); }
+      .engines input:checked + label {
+        color: var(--accent-deep);
+        border-color: var(--accent);
+        background: rgba(245, 130, 31, 0.13);
+        font-weight: 600;
+      }
+      .engines input:focus-visible + label {
+        outline: 2px solid var(--focus); outline-offset: 2px;
+      }
+
+      .actions { display: flex; justify-content: flex-end; }
+      button {
+        font: inherit; font-size: 0.95rem; font-weight: 700;
+        border: none; border-radius: 10px;
+        padding: 0.6rem 1.6rem; cursor: pointer;
+        background: linear-gradient(140deg, var(--accent-strong), var(--accent));
+        color: var(--accent-ink);
+        box-shadow: 0 6px 16px rgba(245, 130, 31, 0.25);
+        transition: transform 0.12s, box-shadow 0.12s, filter 0.12s;
+      }
+      button:hover { filter: brightness(1.08); box-shadow: 0 8px 20px rgba(245, 130, 31, 0.32); }
+      button:active { transform: translateY(1px); box-shadow: 0 3px 10px rgba(245, 130, 31, 0.25); }
+      button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+      /* ---------- Searching state ----------
+         A search is a synchronous form post that can run 12s (ddgs) to ~38s
+         (arXiv retrying a stall). Without this the page looks inert for that
+         whole window and the only feedback is the browser's tab spinner, which
+         on a projector nobody can see. Progressive enhancement only: with
+         scripting off the form still posts and this state never applies. */
+      .actions { align-items: center; gap: 0.85rem; }
+      button[aria-busy="true"] {
+        cursor: progress;
+        filter: saturate(0.75) brightness(0.97);
+        box-shadow: 0 3px 10px rgba(245, 130, 31, 0.2);
+      }
+      button[aria-busy="true"]:hover { filter: saturate(0.75) brightness(0.97); }
+      .spinner {
+        display: none;
+        width: 0.85em; height: 0.85em; flex: none;
+        border: 2px solid rgba(29, 18, 6, 0.28);
+        border-top-color: var(--accent-ink);
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+      }
+      button[aria-busy="true"] .spinner { display: inline-block; }
+      /* Scoped to this button, not `button`: .head-btn and .row-del are single
+         text nodes and inline-flex would shift their baselines for nothing. */
+      #search-btn { display: inline-flex; align-items: center; gap: 0.05rem; }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      /* The elapsed counter carries the progress on its own when animation is
+         unwelcome, so the spinner stops rather than disappears. */
+      @media (prefers-reduced-motion: reduce) {
+        .spinner { animation: none; border-top-color: rgba(29, 18, 6, 0.28); }
+      }
+      /* Reassurance, not a countdown: it appears only once a search has run
+         long enough to look stuck. */
+      .elapsed {
+        font-variant-numeric: tabular-nums;
+        font-weight: 600;
+        opacity: 0.75;
+      }
+
+      /* ---------- Status ---------- */
+      #status {
+        margin: 1.1rem 0 0; min-height: 1.4em;
+        font-size: 0.88rem; font-weight: 500;
+      }
+      #status.ok, #status.err {
+        display: inline-block;
+        padding: 0.45rem 0.9rem;
+        border-radius: 10px;
+        border: 1px solid;
+      }
+      #status.ok { color: var(--ok); border-color: rgba(23, 138, 76, 0.35); background: rgba(23, 138, 76, 0.07); }
+      #status.err { color: var(--err); border-color: rgba(216, 74, 42, 0.35); background: rgba(216, 74, 42, 0.07); }
+
+      /* ---------- Saved searches: dark panel, green letters ---------- */
+      .table-wrap {
+        margin-top: 1.75rem;
+        background: var(--term-bg);
+        border: 1px solid var(--term-line);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 16px 40px rgba(20, 30, 25, 0.22);
+      }
+      .table-head {
+        display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+        gap: 0.6rem;
+        padding: 0.9rem 1.15rem;
+        background: var(--term-bg-2);
+        border-bottom: 1px solid var(--term-line);
+      }
+      .table-head h2 {
+        margin: 0; font-size: 1rem; letter-spacing: 0.5px;
+        font-family: "Consolas", "SF Mono", monospace;
+        color: var(--term-green);
+        text-shadow: 0 0 10px rgba(94, 233, 138, 0.3);
+      }
+      .head-actions { display: flex; gap: 0.5rem; }
+      .head-btn {
+        font-size: 0.82rem; font-weight: 600;
+        padding: 0.35rem 0.9rem;
+        background: transparent; box-shadow: none;
+        border: 1px solid var(--term-green-dim); border-radius: 8px;
+        color: var(--term-green);
+      }
+      .head-btn:hover { background: rgba(94, 233, 138, 0.1); filter: none; box-shadow: none; }
+      #clear-all { color: #ff7a59; border-color: rgba(255, 122, 89, 0.45); }
+      #clear-all:hover { background: rgba(255, 122, 89, 0.1); }
+
+      .table-scroll { overflow-x: auto; }
+      table {
+        width: 100%; border-collapse: collapse;
+        font-family: "Consolas", "SF Mono", monospace; font-size: 0.88rem;
+      }
+      thead th {
+        text-align: left; padding: 0.6rem 1.1rem;
+        color: var(--term-green-dim); font-weight: 600; text-transform: uppercase;
+        font-size: 0.7rem; letter-spacing: 1.2px;
+        border-bottom: 1px solid var(--term-line);
+        white-space: nowrap;
+      }
+      tbody td {
+        padding: 0.75rem 1.1rem; vertical-align: top;
+        border-bottom: 1px solid rgba(34, 51, 24, 0.6);
+        color: var(--term-green);
+        text-shadow: 0 0 6px rgba(94, 233, 138, 0.15);
+      }
+      tbody tr:last-child td { border-bottom: none; }
+      tbody tr:hover { background: rgba(94, 233, 138, 0.05); }
+      td.col-id { color: var(--term-amber); width: 2.5rem; }
+      td.col-q { min-width: 140px; max-width: 220px; word-break: break-word; }
+      /* The URLs are the content; the option columns are metadata. Without a floor
+         here the nowrap columns win the auto layout and break-all crushes every URL
+         to one character per line. .table-scroll takes the overflow instead. */
+      td.col-urls, th.col-urls { min-width: 340px; }
+      /* Metadata is narrow by nature — full cell padding on six of them is what
+         pushed the table past the panel. */
+      td.col-when, td.col-opt { color: var(--term-green-dim); white-space: nowrap; font-size: 0.78rem; }
+      td.col-when, td.col-opt, th.col-opt, th.col-when { padding-left: 0.6rem; padding-right: 0.6rem; }
+      /* A full fallback chain is the one long value here; let it wrap. It joins on
+         "+" with no spaces, so normal wrapping alone finds no break opportunity. */
+      td.col-engine { white-space: normal; overflow-wrap: anywhere; min-width: 5.5rem; }
+      .url-list { display: flex; flex-direction: column; gap: 0.35rem; }
+      .url-list a { color: var(--term-green); text-decoration: none; word-break: break-word; overflow-wrap: anywhere; }
+      .url-list a:hover { color: var(--term-amber); text-decoration: underline; }
+      .row-del {
+        background: transparent; color: var(--term-green-dim);
+        border: none; box-shadow: none;
+        cursor: pointer; padding: 0.1rem 0.4rem; margin: 0; font-size: 1rem; font-weight: 400;
+      }
+      .row-del:hover { color: #ff7a59; background: transparent; filter: none; box-shadow: none; }
+      .empty {
+        padding: 1.6rem 1.15rem; color: var(--term-green-dim);
+        font-family: "Consolas", monospace;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="topbar">
+        <div class="brand">
+          <div class="mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <circle cx="10.5" cy="10" r="5.5" />
+              <path d="M14.6 14.1 19 18.5" />
+              <path d="M7.5 8.5h6" />
+              <path d="M8.5 11.5h4" />
+            </svg>
+          </div>
+          <div>
+            <h1>Source Ledger</h1>
+            <p class="tagline">Build a URL table that keeps search configuration hyperparameters</p>
+          </div>
+        </div>
+        <div class="stats">
+          <span class="chip"><b>{{ stats.searches }}</b> searches</span>
+          <span class="chip"><b>{{ stats.urls }}</b> URLs logged</span>
+          <span class="chip">sqlite &middot; {{ db_label }}</span>
+        </div>
+      </header>
+
+      <form class="search" method="post" action="/search">
+        <p class="field-label">New search</p>
+        <textarea
+          name="text"
+          placeholder="e.g. Cloudera CDP use cases"
+          required
+        ></textarea>
+        <p class="sentence">
+          Search
+          <span class="engines">
+            {% for p in providers %}<input type="radio" id="pv-{{ p.id }}" name="provider" value="{{ p.id }}"{% if loop.first %} checked{% endif %} /><label for="pv-{{ p.id }}">{{ p.label }}</label>
+            {% endfor %}
+          </span>
+          <span class="opt opt-backend">
+            via
+            <span class="engines">
+              <!-- All four start checked for resilience, not coverage: one blocked or
+                   rate-limited engine no longer empties the search. More engines is
+                   not more results — ddgs queries them concurrently and drops the ones
+                   that miss its first wait(). See docs/ARCHITECTURE.md. -->
+              <input type="checkbox" id="be-ddg" name="backend" value="duckduckgo" checked /><label for="be-ddg">DuckDuckGo</label>
+              <input type="checkbox" id="be-yah" name="backend" value="yahoo" checked /><label for="be-yah">Yahoo</label>
+              <input type="checkbox" id="be-sta" name="backend" value="startpage" checked /><label for="be-sta">Startpage</label>
+              <input type="checkbox" id="be-yan" name="backend" value="yandex" checked /><label for="be-yan">Yandex</label>
+            </span>
+          </span>
+          for up to
+          <input type="number" name="max_results" value="10" min="1" max="50" aria-label="Max results" />
+          URLs
+          <span class="opt opt-timelimit">
+            from
+            <select name="timelimit" aria-label="Time range">
+              <option value="" selected>any time</option>
+              <option value="d">the past day</option>
+              <option value="w">the past week</option>
+              <option value="m">the past month</option>
+              <option value="y">the past year</option>
+            </select>
+          </span>
+          <span class="opt opt-region">
+            in
+            <select name="region" aria-label="Region">
+              <option value="wt-wt" selected>Worldwide</option>
+              <option value="us-en">the US</option>
+              <option value="uk-en">the UK</option>
+              <option value="kr-kr">Korea</option>
+              <option value="jp-jp">Japan</option>
+              <option value="de-de">Germany</option>
+              <option value="fr-fr">France</option>
+            </select>
+          </span>
+          <span class="opt opt-safesearch">
+            with
+            <select name="safesearch" aria-label="SafeSearch">
+              <option value="off">off</option>
+              <option value="moderate" selected>moderate</option>
+              <option value="on">on</option>
+            </select>
+            safe search</span>.
+        </p>
+        <div class="actions">
+          <button type="submit" id="search-btn">
+            <span class="spinner" aria-hidden="true"></span>
+            <span class="btn-label">Search</span>
+            <span class="elapsed" aria-hidden="true"></span>
+          </button>
+        </div>
+      </form>
+
+      {% if msg %}
+      <p id="status" class="{{ 'err' if msg.startswith('Error') else 'ok' }}">{{ msg }}</p>
+      {% else %}
+      <p id="status"></p>
+      {% endif %}
+
+      <section class="table-wrap">
+        <div class="table-head">
+          <h2>saved_searches</h2>
+          <div class="head-actions">
+            <form method="post" action="/dedupe">
+              <button id="dedupe" class="head-btn" type="submit"
+                title="Delete duplicate URLs across searches, keeping the earliest">Dedupe URLs</button>
+            </form>
+            <!-- Store sits before Clear all so the one destructive action stays
+                 rightmost and visually separated. Download sits beside Store
+                 because they are the same snapshot going to two different disks:
+                 Store keeps one on the server, Download hands one to the browser.
+                 A GET form rather than an <a> so the markup — and so the .head-btn
+                 styling — stays identical to every other action here. -->
+            <form method="post" action="/store">
+              <button id="store" class="head-btn" type="submit"
+                title="Save a dated snapshot of the database to backups/ — never overwrites">Store</button>
+            </form>
+            <form method="get" action="/download">
+              <button id="download" class="head-btn" type="submit"
+                title="Download a snapshot — your browser chooses where it is saved">Download</button>
+            </form>
+            <form method="post" action="/clear">
+              <button id="clear-all" class="head-btn" type="submit">Clear all</button>
+            </form>
+          </div>
+        </div>
+        <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Question</th>
+              <th class="col-urls">URLs</th>
+              <th class="col-opt">Provider</th>
+              <th class="col-opt">Time</th>
+              <th class="col-opt">Engine</th>
+              <th class="col-opt">Region</th>
+              <th class="col-opt">Safe</th>
+              <th class="col-opt">Max</th>
+              <th class="col-when">Search Time</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in rows %}
+            <tr>
+              <td class="col-id">{{ row.id }}</td>
+              <td class="col-q">{{ row.query }}</td>
+              <td class="col-urls">
+                <div class="url-list">
+                  {% for url in row.urls %}
+                  <a href="{{ url }}" target="_blank" rel="noopener noreferrer">{{ url }}</a>
+                  {% endfor %}
+                </div>
+              </td>
+              <td class="col-opt">{{ row.provider_label or "&mdash;" | safe }}</td>
+              {# NULL means the provider has no time filter; "" means it has one and
+                 the search did not use it. The dash and "any" are not the same claim. #}
+              <td class="col-opt">{% if row.timelimit is none %}&mdash;{% else %}{{ row.timelimit or "any" }}{% endif %}</td>
+              <td class="col-opt col-engine">{{ row.backend_label or "&mdash;" | safe }}</td>
+              <td class="col-opt">{{ row.region or "&mdash;" | safe }}</td>
+              <td class="col-opt">{{ row.safesearch or "&mdash;" | safe }}</td>
+              <td class="col-opt">{{ row.max_results or "&mdash;" | safe }}</td>
+              <td class="col-when">{{ row.when }}</td>
+              <td>
+                <form method="post" action="/delete/{{ row.id }}">
+                  <button class="row-del" title="Delete">&#x2715;</button>
+                </form>
+              </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="11" class="empty">No searches yet — run one above.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        </div>
+      </section>
+    </main>
+
+    <!-- The only script in the repo, and deliberately the smallest one that
+         closes the gap: a search blocks for up to ~38s and the page had no way
+         to say so. Progressive enhancement -- with scripting off the form posts
+         exactly as before and nothing below ever runs. No build step, no
+         dependency, no framework; see docs/ARCHITECTURE.md "No JavaScript
+         beyond a submit indicator". -->
+    <script>
+      (function () {
+        var form = document.querySelector("form.search");
+        var btn = document.getElementById("search-btn");
+        if (!form || !btn) return;
+        var label = btn.querySelector(".btn-label");
+        var elapsed = btn.querySelector(".elapsed");
+        var timer = null;
+
+        function reset() {
+          if (timer) { clearInterval(timer); timer = null; }
+          btn.removeAttribute("aria-busy");
+          btn.disabled = false;
+          label.textContent = "Search";
+          elapsed.textContent = "";
+        }
+
+        form.addEventListener("submit", function () {
+          // A blank query is `required`, so the browser blocks submission and
+          // never fires this -- but a whitespace-only one passes `required` and
+          // the server discards it. Bailing here keeps the button from spinning
+          // forever on a redirect that returns almost instantly.
+          var text = form.elements.text;
+          if (text && !text.value.trim()) return;
+
+          btn.setAttribute("aria-busy", "true");
+          label.textContent = "Searching";
+          // Disabling synchronously would cancel the post in some browsers, so
+          // it happens after the submission is already under way.
+          setTimeout(function () { btn.disabled = true; }, 0);
+
+          var start = Date.now();
+          timer = setInterval(function () {
+            var seconds = Math.floor((Date.now() - start) / 1000);
+            // Silent for the first three seconds: most searches finish inside
+            // that, and a counter on a fast search is noise, not progress.
+            elapsed.textContent = seconds >= 3 ? seconds + "s" : "";
+          }, 250);
+        });
+
+        // Restoring from the back/forward cache replays the DOM as it was left
+        // -- mid-search, button disabled. Without this the page comes back
+        // permanently stuck on "Searching".
+        window.addEventListener("pageshow", function (event) {
+          if (event.persisted) reset();
+        });
+      })();
+    </script>
+  </body>
+</html>
