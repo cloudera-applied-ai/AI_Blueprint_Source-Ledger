@@ -1,9 +1,9 @@
 # Cloudera Blueprint: Source Ledger
 
+[![Author-Mason Jung](https://img.shields.io/badge/Author-Mason%20Jung-555555)](https://github.com/masonjung)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.11%2B-blue.svg)](pyproject.toml)
 [![Cloudera Blueprint](https://img.shields.io/badge/Cloudera-Blueprint-f96702.svg)](METADATA.yaml)
-[![Author-Mason Jung](https://img.shields.io/badge/Author-Mason%20Jung-555555)]()
 [![Stars](https://img.shields.io/github/stars/cloudera-applied-ai/AI_Blueprint_Source-Ledger?logo=github&cacheSeconds=300)](https://github.com/cloudera-applied-ai/AI_Blueprint_Source-Ledger/stargazers)
 [![Forks](https://img.shields.io/github/forks/cloudera-applied-ai/AI_Blueprint_Source-Ledger?logo=github&cacheSeconds=300)](https://github.com/cloudera-applied-ai/AI_Blueprint_Source-Ledger/network/members)
 
@@ -52,10 +52,7 @@ searches.
 <img width="1126" height="812" alt="image" src="https://github.com/user-attachments/assets/c89f8fe8-7304-4bf0-bb3d-2f1757f6450f" />
 <img width="1161" height="787" alt="image" src="https://github.com/user-attachments/assets/69e7b025-8742-4d3e-bd66-9e3039d3ae91" />
 
-
-
 ## Use Case
-
 
 1. **Record.** Every search is captured, not lost — the query, the options, and the
    URLs it returned are written down at the moment the search runs, so nothing depends
@@ -224,7 +221,6 @@ A synchronous request path that runs today, and a batch path written against the
 schema that has never been executed against a real cluster.
 
 <img width="1053" height="523" alt="image" src="https://github.com/user-attachments/assets/dd919c8d-7771-4c97-92ee-c7dc2aaed3c9" />
-
 
 | Layer | Component | Cloudera service | State |
 | --- | --- | --- | --- |
